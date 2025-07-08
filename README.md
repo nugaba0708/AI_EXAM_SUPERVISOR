@@ -8,7 +8,7 @@
 ## 팀명: 누가바(7조)
 * 구성원: 장희재(팀장), 김용호, 박승범, 서윤철
 ---------------------------------------------------
-## English
+## English Version
 ## Project Title: AI Exam Supervisor
 * Duration: 25.07.03 ~ 25.07.11
 ## TEAM NAME: NUGABA(7th)
