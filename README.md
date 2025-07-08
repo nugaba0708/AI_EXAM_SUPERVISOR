@@ -1,5 +1,5 @@
 ![Python](https://img.shields.io/badge/Python-3.10-blue?logo=python)
-![License](https://img.shields.io/github/license/yourname/yourrepo)
+![License](https://img.shields.io/github/license/nugaba0708/AI_EXAM_SUPERVISOR)
 # 대한상공회의소 서울기술교육센터 
 ## AI 시스템반도체설계 2기
 * 과목명: AI 알고리즘과 구조
