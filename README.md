@@ -10,5 +10,5 @@
 ---------------------------------------------------
 ## Project Title: AI Exam Supervisor
 * Duration: 25.07.03 ~ 25.07.11
-## TEAM NAME: NUGABA(7th)
+## TEAM NAME: NUGABA(7th group)
 * MEMBERs: 장희재(TEAM LEADER), 김용호, 박승범, 서윤철
