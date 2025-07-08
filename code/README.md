@@ -1,5 +1,5 @@
 ## directory description
-* face_detection:
+* face_detection: 얼굴 감지
 * face_recognition: 신원확인
 * gaze:
 * gpgae_banghyang:
