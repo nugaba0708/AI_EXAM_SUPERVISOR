@@ -1,0 +1,39 @@
+{
+  "camera": {
+    "index": 0,
+    "width": 640,
+    "height": 480,
+    "fps": 20,
+    "mirror": true
+  },
+  "detection": {
+    "x_threshold": 0.15,
+    "y_threshold": 0.5,
+    "sustained_time": 2.0,
+    "gaze_margin": 0.5,
+    "face_lost_threshold": 1.0
+  },
+  "identity": {
+    "dataset_path": "./dataset",
+    "tolerance": 0.4,
+    "max_attempts": 5,
+    "blink_threshold": 0.21,
+    "blink_required": 2,
+    "blink_detection_duration": 6
+  },
+  "phone_detection": {
+    "enabled": true,
+    "model_path": "yolov5s.pt",
+    "confidence_threshold": 0.5,
+    "detection_interval": 3,
+    "sustained_time": 1.0
+  },
+  "system": {
+    "print_interval": 1.0,
+    "baseline_frames": 30,
+    "gaze_debug_mode": false,
+    "save_video": true,
+    "log_path": "./logs",
+    "max_warnings": 5
+  }
+}
