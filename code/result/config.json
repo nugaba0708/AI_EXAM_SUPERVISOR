@@ -10,7 +10,7 @@
     "x_threshold": 0.15,
     "y_threshold": 0.5,
     "sustained_time": 2.0,
-    "gaze_margin": 0.5,
+    "gaze_margin": 0.6,
     "face_lost_threshold": 1.0
   },
   "identity": {
@@ -30,7 +30,7 @@
   },
   "system": {
     "print_interval": 1.0,
-    "baseline_frames": 30,
+    "baseline_frames": 120,
     "gaze_debug_mode": false,
     "save_video": true,
     "log_path": "./logs",
