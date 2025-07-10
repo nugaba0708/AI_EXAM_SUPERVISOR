@@ -1,4 +1,4 @@
-## 코드를 실행시키기 전 해야할 조치
+## 설치해야할 파일 및 참고사항
 * 라이브러리
 ```
 pip install opencv-python mediapipe numpy face-recognition pillow
