@@ -29,7 +29,6 @@ class SimpleExamSupervisor:
     """단순화된 AI 시험 감독관 - 원본 기능 완전 보존"""
     
     def __init__(self):
-        # === 원본 초기화 로직 그대로 ===
         self.setup_config()
         self.setup_mediapipe()
         self.setup_variables()
@@ -42,16 +41,14 @@ class SimpleExamSupervisor:
         
         print("🔒 AI 시험 감독관 시스템 v2.6 (단순화) 초기화 완료")
         
-
     def setup_config(self):
-        """원본과 동일한 설정"""
         default_config = {
             "camera": {"index": 0, "width": 640, "height": 480, "fps": 20, "mirror": True},
             "detection": {"x_threshold": 0.15, "y_threshold": 0.5, "sustained_time": 2.0, 
                          "gaze_margin": 0.6, "face_lost_threshold": 1.0},
             "identity": {"dataset_path": "./dataset", "tolerance": 0.4, "max_attempts": 5,
                         "blink_threshold": 0.21, "blink_required": 2, "blink_detection_duration": 6},
-            "system": {"baseline_frames": 120, "save_video": True, "log_path": "./logs", "max_warnings": 5}
+            "system": {"baseline_frames": 30, "save_video": True, "log_path": "./logs", "max_warnings": 5}
         }
         
         config_path = "config.json"
@@ -72,7 +69,7 @@ class SimpleExamSupervisor:
             config = default_config
             
         self.config = config
-        # 설정값 적용 (원본과 동일)
+        # 설정값 적용
         self.CAMERA_INDEX = config["camera"]["index"]
         self.CAMERA_WIDTH = config["camera"]["width"]
         self.CAMERA_HEIGHT = config["camera"]["height"]
@@ -98,7 +95,7 @@ class SimpleExamSupervisor:
         self.MAX_WARNINGS = config["system"]["max_warnings"]
         
     def setup_mediapipe(self):
-        """MediaPipe 초기화 (원본과 동일)"""
+        """MediaPipe 초기화"""
         self.mp_face_mesh = mp.solutions.face_mesh
         self.face_mesh = self.mp_face_mesh.FaceMesh(
             refine_landmarks=True, static_image_mode=False, max_num_faces=2,
@@ -106,7 +103,7 @@ class SimpleExamSupervisor:
         )
         self.mp_drawing = mp.solutions.drawing_utils
         
-        # 랜드마크 포인트들 (원본과 동일)
+        # 랜드마크 포인트들
         self.NOSE_TIP = 1
         self.LEFT_EYE_LEFT = 33
         self.RIGHT_EYE_RIGHT = 263
@@ -121,7 +118,7 @@ class SimpleExamSupervisor:
         self.MAX_EAR_HISTORY = 100
         
     def setup_variables(self):
-        """상태 변수 초기화 (원본과 동일)"""
+        """상태 변수 초기화"""
         # 시스템 상태
         self.system_phase = "IDLE"
         self.authenticated_user = None
@@ -129,7 +126,7 @@ class SimpleExamSupervisor:
         self.exam_terminated = False
         self.termination_reason = ""
         
-        # 경고 시스템 (원본과 동일)
+        # 경고 시스템
         self.total_warnings = 0
         self.head_warnings = 0
         self.gaze_warnings = 0
@@ -149,7 +146,7 @@ class SimpleExamSupervisor:
         self.total_violations = 0
         self.identity_attempts = 0
         
-        # 위반 상태들 (원본과 동일)
+        # 위반 상태들
         self.reset_violation_states()
         
         # 폴더 생성
@@ -237,7 +234,7 @@ class SimpleExamSupervisor:
         control_frame = ttk.LabelFrame(parent, text="🎛️ 시스템 제어")
         control_frame.pack(fill="x", pady=(0, 10), padx=5)
         
-        # 버튼들 (원본 기능 유지)
+        # 버튼들
         tk.Button(control_frame, text="▶️ 시스템 시작", command=self.start_system,
                  bg="#28a745", fg="white", font=("Arial", 11, "bold")).pack(fill="x", pady=5, padx=10)
         
@@ -260,7 +257,7 @@ class SimpleExamSupervisor:
         self.log_text.pack(fill="both", expand=True, padx=10, pady=10)
         
     # =====================================
-    # 메인 로직 (원본 그대로 유지)
+    # 메인 로직
     # =====================================
     
     def start_system(self):
@@ -268,7 +265,7 @@ class SimpleExamSupervisor:
         if self.is_running:
             return
             
-        # 카메라 찾기 (원본 로직)
+        # 카메라 찾기
         self.cap = self.find_camera()
         if self.cap is None:
             messagebox.showerror("오류", "카메라를 찾을 수 없습니다!")
@@ -281,7 +278,7 @@ class SimpleExamSupervisor:
         self.update_loop()
         
     def find_camera(self):
-        """카메라 찾기 (원본과 동일)"""
+        """카메라 찾기"""
         camera_indices = [self.CAMERA_INDEX] + [i for i in range(5) if i != self.CAMERA_INDEX]
         
         for camera_idx in camera_indices:
@@ -303,7 +300,7 @@ class SimpleExamSupervisor:
         return None
         
     def update_loop(self):
-        """메인 업데이트 루프 (Queue 없이 직접 처리)"""
+        """메인 업데이트 루프"""
         if not self.is_running or self.cap is None:
             return
             
@@ -317,7 +314,7 @@ class SimpleExamSupervisor:
             
         self.current_frame = frame.copy()
         
-        # 단계별 처리 (원본 로직)
+        # 단계별 처리
         if self.system_phase == "IDENTITY_CHECK":
             self.process_identity_frame(frame)
         elif self.system_phase == "EXAM_MONITORING":
@@ -331,7 +328,7 @@ class SimpleExamSupervisor:
         self.root.after(33, self.update_loop)  # ~30 FPS
         
     def update_camera_display(self, frame):
-        """카메라 화면 업데이트 (Queue 없이 직접)"""
+        """카메라 화면 업데이트"""
         try:
             # BGR to RGB
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -353,7 +350,7 @@ class SimpleExamSupervisor:
             pass
             
     def update_status_display(self):
-        """상태 정보 직접 업데이트 (Queue 없음)"""
+        """상태 정보 직접 업데이트"""
         # 사용자 상태
         if self.authenticated_user:
             self.user_label.configure(text=self.authenticated_user, fg="green")
@@ -376,7 +373,7 @@ class SimpleExamSupervisor:
         self.warning_label.configure(text=f"{self.total_warnings}/{self.MAX_WARNINGS}", fg=color)
         
     # =====================================
-    # 신원 확인 (원본 로직 보존)
+    # 신원 확인
     # =====================================
     
     def start_identity(self):
@@ -413,7 +410,7 @@ class SimpleExamSupervisor:
         speak_tts("신원 조회를 시작합니다. 카메라를 바라봐 주세요.")
         
     def process_identity_frame(self, frame):
-        """신원 확인 프레임 처리 (원본 로직)"""
+        """신원 확인 프레임 처리"""
         if not hasattr(self, 'blink_detection_active') or not self.blink_detection_active:
             return
             
@@ -429,7 +426,7 @@ class SimpleExamSupervisor:
                 for face_landmarks in results.multi_face_landmarks:
                     landmarks = face_landmarks.landmark
                     
-                    # EAR 계산 (원본 함수)
+                    # EAR 계산
                     left_ear = self.calculate_ear(landmarks, self.LEFT_EYE_EAR)
                     right_ear = self.calculate_ear(landmarks, self.RIGHT_EYE_EAR)
                     ear = (left_ear + right_ear) / 2.0
@@ -505,7 +502,7 @@ class SimpleExamSupervisor:
                 self.system_phase = "IDLE"
                 
     # =====================================
-    # 시험 감독 (원본 로직 보존)
+    #               시험 감독
     # =====================================
     
     def start_monitoring(self):
@@ -537,7 +534,7 @@ class SimpleExamSupervisor:
         speak_tts("시험 감독이 시작되었습니다.")
         
     def process_monitoring_frame(self, frame):
-        """시험 감독 프레임 처리 (원본 로직 그대로)"""
+        """시험 감독 프레임 처리"""
         if self.exam_terminated:
             return
             
@@ -559,10 +556,10 @@ class SimpleExamSupervisor:
             best_face = results.multi_face_landmarks[0]
             current_landmarks = self.get_landmarks_coords(best_face, img_w, img_h)
             
-            # 머리 방향 (원본 함수)
+            # 머리 방향
             head_direction, x_ratio, y_ratio = self.get_head_direction(current_landmarks, img_w, img_h)
             
-            # 시선 분석 (원본 함수)
+            # 시선 분석
             landmarks_normalized = [(lm.x, lm.y) for lm in best_face.landmark]
             gaze_left = self.get_gaze_ratio(self.LEFT_EYE, landmarks_normalized, frame, gray)
             gaze_right = self.get_gaze_ratio(self.RIGHT_EYE, landmarks_normalized, frame, gray)
@@ -609,10 +606,10 @@ class SimpleExamSupervisor:
             else:
                 self.gaze_label.configure(text="정면", fg="green")
                     
-        # 위반 상태 업데이트 (원본 함수 - 핵심!)
+        # 위반 상태 업데이트
         self.update_violation_states(face_count, head_direction, gaze_ratio)
         
-        # 화면에 정보 표시 (원본 함수)
+        # 화면에 정보 표시
         self.draw_status_info(frame, face_count, head_direction, gaze_ratio, x_ratio, y_ratio)
         
     def stop_system(self):
@@ -623,11 +620,11 @@ class SimpleExamSupervisor:
         self.log_message("시스템이 중지되었습니다.", "WARNING")
         
     # =====================================
-    # 원본 함수들 (수정 없이 그대로) - 핵심 부정행위 탐지!
+    #         핵심 부정행위 탐지!
     # =====================================
     
     def calculate_ear(self, landmarks, eye_indices):
-        """EAR 계산 (원본과 동일)"""
+        """EAR 계산"""
         try:
             left = np.array([landmarks[eye_indices[0]].x, landmarks[eye_indices[0]].y])
             right = np.array([landmarks[eye_indices[3]].x, landmarks[eye_indices[3]].y])
@@ -644,7 +641,7 @@ class SimpleExamSupervisor:
             return 0.0
             
     def compare_with_dataset(self, captured_image_path):
-        """데이터셋 비교 (원본과 동일)"""
+        """데이터셋 비교"""
         try:
             known_encodings = []
             known_names = []
@@ -712,7 +709,7 @@ class SimpleExamSupervisor:
             return None
             
     def get_landmarks_coords(self, face_landmarks, image_w, image_h):
-        """랜드마크 좌표 변환 (원본과 동일)"""
+        """랜드마크 좌표 변환"""
         coords = []
         for landmark in face_landmarks.landmark:
             x = int(landmark.x * image_w)
@@ -721,7 +718,7 @@ class SimpleExamSupervisor:
         return np.array(coords)
         
     def get_head_direction(self, landmarks, image_w, image_h):
-        """머리 방향 판단 (원본과 동일)"""
+        """머리 방향 판단"""
         nose_tip = landmarks[self.NOSE_TIP]
         left_eye_left = landmarks[self.LEFT_EYE_LEFT]
         right_eye_right = landmarks[self.RIGHT_EYE_RIGHT]
@@ -755,7 +752,7 @@ class SimpleExamSupervisor:
             return "Forward", x_ratio, y_ratio
             
     def get_gaze_ratio(self, eye_indices, landmarks, frame, gray):
-        """시선 방향 계산 (원본과 동일)"""
+        """시선 방향 계산"""
         h, w = frame.shape[:2]
         
         try:
@@ -807,8 +804,7 @@ class SimpleExamSupervisor:
             return 1.0
             
     def reset_violation_states(self):
-        """위반 상태 초기화 (우선순위 시스템 적용)"""
-        # 기존 상태들
+        """위반 상태 초기화"""
         self.is_head_abnormal = False
         self.head_abnormal_start_time = time.time()
         self.is_head_violation = False
@@ -823,17 +819,17 @@ class SimpleExamSupervisor:
         
         self.is_gaze_abnormal = False
         self.gaze_abnormal_start_time = time.time()
-        self.is_gaze_violation = False 
-
+        self.is_gaze_violation = False
+        
     def update_violation_states(self, face_count, head_direction, gaze_ratio):
-        """위반 상태 업데이트 (우선순위 기반 처리)"""
+        """위반 상태 업데이트"""
         current_time = time.time()
         
         # 시험이 이미 중단된 경우 처리 중지
         if self.exam_terminated:
             return
         
-        # 1. 다중 인물 감지 - 즉시 중단 (최고 우선순위)
+        # 1. 다중 인물 감지 - 즉시 중단
         current_multiple_faces = face_count > 1
         if current_multiple_faces != self.is_multiple_faces:
             self.is_multiple_faces = current_multiple_faces
@@ -844,14 +840,16 @@ class SimpleExamSupervisor:
             duration = current_time - self.multiple_faces_start_time
             if duration >= self.SUSTAINED_TIME and not self.is_multiple_faces_violation:
                 self.is_multiple_faces_violation = True
+                # 부정행위 알림 출력
                 self.print_violation_alert("다중 인물 감지", f"감지된 얼굴 수: {face_count}명", 
                                          is_start=True, duration=duration)
+                # 시험 즉시 중단
                 self.terminate_exam(f"다중 인물 감지 ({face_count}명)")
                 return
             elif duration < self.SUSTAINED_TIME and duration > 0.5:
                 self.print_warning("다중 인물 감지", f"{face_count}명 감지됨", duration)
         
-        # 2. 화면 이탈 감지 - 즉시 중단 (최고 우선순위)
+        # 2. 화면 이탈 감지 - 즉시 중단
         current_no_face = face_count == 0
         if current_no_face != self.is_no_face:
             self.is_no_face = current_no_face
@@ -862,17 +860,17 @@ class SimpleExamSupervisor:
             duration = current_time - self.no_face_start_time
             if duration >= self.SUSTAINED_TIME and not self.is_no_face_violation:
                 self.is_no_face_violation = True
+                # 부정행위 알림 출력
                 self.print_violation_alert("화면 이탈", "얼굴 감지 불가 - 화면에서 완전히 이탈", 
                                          is_start=True, duration=duration)
+                # 시험 즉시 중단
                 self.terminate_exam("화면 이탈 (얼굴 감지 불가)")
                 return
             elif duration < self.SUSTAINED_TIME and duration > 0.5:
                 self.print_warning("화면 이탈", "얼굴이 감지되지 않음", duration)
         
-        # 3. 고개 방향 감지 - 높은 우선순위 경고
+        # 3. 고개 방향 감지 - 경고 후 중단
         current_head_abnormal = head_direction in ["Left", "Right", "Down"]
-        head_violation_occurred = False  # 고개 위반 발생 플래그
-        
         if current_head_abnormal != self.is_head_abnormal:
             if not current_head_abnormal and self.is_head_violation:
                 # 위반 상태 종료
@@ -887,7 +885,6 @@ class SimpleExamSupervisor:
             duration = current_time - self.head_abnormal_start_time
             if duration >= self.SUSTAINED_TIME and not self.is_head_violation:
                 self.is_head_violation = True
-                head_violation_occurred = True
                 # 경고 발급
                 is_terminated = self.issue_warning("고개 방향", f"방향: {head_direction}")
                 if is_terminated:
@@ -895,44 +892,37 @@ class SimpleExamSupervisor:
             elif duration < self.SUSTAINED_TIME and duration > 0.5:
                 self.print_warning("고개 방향", f"{head_direction} 방향으로 움직임", duration)
         
-        # 4. 시선 이탈 감지 - 낮은 우선순위 경고 (고개 위반이 없을 때만 처리)
-        if not head_violation_occurred and not self.is_head_abnormal:
-            if self.gaze_baseline is not None and gaze_ratio != 1:
-                current_gaze_abnormal = (gaze_ratio < self.gaze_baseline - self.GAZE_MARGIN or 
-                                       gaze_ratio > self.gaze_baseline + self.GAZE_MARGIN)
+        # 4. 시선 이탈 감지 - 경고 후 중단
+        if self.gaze_baseline is not None and gaze_ratio != 1:
+            current_gaze_abnormal = (gaze_ratio < self.gaze_baseline - self.GAZE_MARGIN or 
+                                   gaze_ratio > self.gaze_baseline + self.GAZE_MARGIN)
+            
+            if current_gaze_abnormal != self.is_gaze_abnormal:
+                if not current_gaze_abnormal and self.is_gaze_violation:
+                    # 위반 상태 종료
+                    total_duration = current_time - self.gaze_abnormal_start_time
+                    self.log_message(f"시선 정상화 (지속시간: {total_duration:.1f}초)", "SUCCESS")
                 
-                if current_gaze_abnormal != self.is_gaze_abnormal:
-                    if not current_gaze_abnormal and self.is_gaze_violation:
-                        # 위반 상태 종료
-                        total_duration = current_time - self.gaze_abnormal_start_time
-                        self.log_message(f"시선 정상화 (지속시간: {total_duration:.1f}초)", "SUCCESS")
-                    
-                    self.is_gaze_abnormal = current_gaze_abnormal
-                    self.gaze_abnormal_start_time = current_time
-                    self.is_gaze_violation = False
-                
-                if self.is_gaze_abnormal:
-                    duration = current_time - self.gaze_abnormal_start_time
-                    if duration >= self.SUSTAINED_TIME and not self.is_gaze_violation:
-                        self.is_gaze_violation = True
-                        direction = "왼쪽" if gaze_ratio < self.gaze_baseline else "오른쪽"
-                        # 경고 발급
-                        is_terminated = self.issue_warning("시선 이탈", f"{direction} 방향으로 시선 이탈")
-                        if is_terminated:
-                            return
-                    elif duration < self.SUSTAINED_TIME and duration > 0.5:
-                        direction = "왼쪽" if gaze_ratio < self.gaze_baseline else "오른쪽"
-                        deviation = abs(gaze_ratio - self.gaze_baseline)
-                        self.print_warning("시선 이탈", f"{direction} 시선 (편차: {deviation:.2f})", duration)
-        else:
-            # 고개 위반이 활성화된 동안 시선 위반 상태 초기화
-            if self.is_gaze_abnormal:
-                self.is_gaze_abnormal = False
+                self.is_gaze_abnormal = current_gaze_abnormal
+                self.gaze_abnormal_start_time = current_time
                 self.is_gaze_violation = False
-                self.log_message("고개 위반으로 인한 시선 감지 일시 정지", "INFO")
+            
+            if self.is_gaze_abnormal:
+                duration = current_time - self.gaze_abnormal_start_time
+                if duration >= self.SUSTAINED_TIME and not self.is_gaze_violation:
+                    self.is_gaze_violation = True
+                    direction = "왼쪽" if gaze_ratio < self.gaze_baseline else "오른쪽"
+                    # 경고 발급
+                    is_terminated = self.issue_warning("시선 이탈", f"{direction} 방향으로 시선 이탈")
+                    if is_terminated:
+                        return
+                elif duration < self.SUSTAINED_TIME and duration > 0.5:
+                    direction = "왼쪽" if gaze_ratio < self.gaze_baseline else "오른쪽"
+                    deviation = abs(gaze_ratio - self.gaze_baseline)
+                    self.print_warning("시선 이탈", f"{direction} 시선 (편차: {deviation:.2f})", duration)
                     
     def terminate_exam(self, reason):
-        """시험 중단 (원본과 동일)"""
+        """시험 중단"""
         self.exam_terminated = True
         self.termination_reason = reason
         
@@ -947,7 +937,7 @@ class SimpleExamSupervisor:
         self.log_violation("부정행위-시험중단", reason)
         
     def issue_warning(self, warning_type, details):
-        """경고 발급 (우선순위 기반 시스템)"""
+        """경고 발급 (통합 5회 시스템)"""
         # 개별 경고 횟수 증가 (표시용)
         if warning_type == "고개 방향":
             self.head_warnings += 1
@@ -960,14 +950,7 @@ class SimpleExamSupervisor:
         
         speak_tts(f"{warning_type}부정행위가 탐지되었습니다.")
         
-        # 우선순위 표시
-        priority_text = ""
-        if warning_type == "고개 방향":
-            priority_text = " [높은 우선순위]"
-        elif warning_type == "시선 이탈":
-            priority_text = " [낮은 우선순위]"
-        
-        self.log_message(f"⚠️  경고 {self.total_warnings}/{self.MAX_WARNINGS} - {warning_type}{priority_text}", "WARNING")
+        self.log_message(f"⚠️  경고 {self.total_warnings}/{self.MAX_WARNINGS} - {warning_type}", "WARNING")
         self.log_message(f"상세: {details}", "WARNING")
         
         if self.total_warnings >= self.MAX_WARNINGS:
@@ -979,10 +962,10 @@ class SimpleExamSupervisor:
         
         # 로그 기록
         self.log_violation(f"경고-{warning_type}", details)
-        return False    
-
+        return False
+        
     def print_violation_alert(self, violation_type, details, is_start=True, duration=0):
-        """위반 사항 터미널 알림 (원본과 동일)"""
+        """위반 사항 터미널 알림"""
         timestamp = datetime.now().strftime("%H:%M:%S")
         
         if is_start:
@@ -998,7 +981,7 @@ class SimpleExamSupervisor:
             self.log_message(f"위반 종료: {violation_type} (총 지속시간: {duration:.1f}초)", "SUCCESS")
             
     def print_warning(self, warning_type, details, duration):
-        """경고 사항 터미널 출력 (원본과 동일)"""
+        """경고 사항 터미널 출력"""
         timestamp = datetime.now().strftime("%H:%M:%S")
         
         progress = min(duration / self.SUSTAINED_TIME, 1.0) * 100
@@ -1009,7 +992,7 @@ class SimpleExamSupervisor:
         self.log_message(f"⚠️  {warning_type}: {details} [{bar}] {progress:.0f}% ({duration:.1f}s)", "WARNING")
         
     def log_violation(self, violation_type, details):
-        """위반 사항 로그 기록 (원본과 동일)"""
+        """위반 사항 로그 기록"""
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         log_entry = {
             "timestamp": timestamp,
@@ -1025,7 +1008,7 @@ class SimpleExamSupervisor:
         self.total_violations += 1
         
     def draw_status_info(self, frame, face_count, head_direction, gaze_ratio, x_ratio, y_ratio):
-        """화면에 상태 정보 표시 (우선순위 표시 추가)"""
+        """화면에 상태 정보 표시"""
         current_time = time.time()
         exam_duration = int(current_time - self.exam_start_time) if self.exam_start_time else 0
         
@@ -1043,54 +1026,45 @@ class SimpleExamSupervisor:
                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
         
         if self.gaze_baseline is not None:
-            # 고개 위반 중인지 확인하여 시선 상태 표시
-            if self.is_head_abnormal:
-                cv2.putText(frame, f"Gaze: PAUSED (Head Priority)", (30, 150),
-                           cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 165, 0), 2)  # 주황색
-            else:
-                cv2.putText(frame, f"Gaze: {gaze_ratio:.2f} (Base: {self.gaze_baseline:.2f})", (30, 150),
-                           cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+            cv2.putText(frame, f"Gaze: {gaze_ratio:.2f} (Base: {self.gaze_baseline:.2f})", (30, 150),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
         else:
             cv2.putText(frame, f"Gaze: {gaze_ratio:.2f} (Calibrating...)", (30, 150),
                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 0), 2)
         
-        # 경고 횟수 표시 (우선순위 표시)
+        # 경고 횟수 표시 (통합)
         warning_color = (0, 255, 255) if self.total_warnings < self.MAX_WARNINGS else (0, 0, 255)
-        cv2.putText(frame, f"Priority Warnings: {self.total_warnings}/{self.MAX_WARNINGS}", (30, 180),
+        cv2.putText(frame, f"Total Warnings: {self.total_warnings}/{self.MAX_WARNINGS}", (30, 180),
                    cv2.FONT_HERSHEY_SIMPLEX, 0.8, warning_color, 2)
         
         cv2.putText(frame, f"Head: {self.head_warnings}, Gaze: {self.gaze_warnings}", (30, 210),
                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
         
-        # 우선순위 위반 상태 표시
+        # 위반 상태 표시
         y_offset = 240
         
         violations = []
         if self.is_multiple_faces_violation:
-            violations.append("Multiple Faces [P1]")  # Priority 1
+            violations.append("Multiple Faces")
         if self.is_no_face_violation:
-            violations.append("No Face [P1]")  # Priority 1
+            violations.append("No Face")
         if self.is_head_violation:
-            violations.append(f"Head: {head_direction} [P2]")  # Priority 2
-        if self.is_gaze_violation and not self.is_head_abnormal:
-            violations.append("Gaze Direction [P3]")  # Priority 3
+            violations.append(f"Head: {head_direction}")
+        if self.is_gaze_violation:
+            violations.append("Gaze Direction")
         
         if violations:
             cv2.putText(frame, f"VIOLATIONS: {', '.join(violations)}", (30, y_offset),
                        cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
         
-        # 우선순위 설명 표시
-        if self.is_head_abnormal:
-            cv2.putText(frame, "HEAD PRIORITY ACTIVE - Gaze Detection Paused", (30, y_offset + 30),
-                       cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 165, 0), 2)
-        
         # 시험 중단 상태 표시
         if self.exam_terminated:
-            cv2.putText(frame, "CHEATING DETECTED!", (30, y_offset + 60),
+            # 부정행위 탐지로 인한 중단 강조 표시
+            cv2.putText(frame, "CHEATING DETECTED!", (30, y_offset + 40),
                        cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 0, 255), 3)
-            cv2.putText(frame, "EXAM TERMINATED", (30, y_offset + 100),
+            cv2.putText(frame, "EXAM TERMINATED", (30, y_offset + 80),
                        cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 3)
-            cv2.putText(frame, f"Reason: {self.termination_reason}", (30, y_offset + 140),
+            cv2.putText(frame, f"Reason: {self.termination_reason}", (30, y_offset + 120),
                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
             
             # 화면 전체에 경고 테두리 표시
@@ -1110,9 +1084,9 @@ class SimpleExamSupervisor:
         cv2.putText(frame, f"Total Violations: {self.total_violations}", 
                    (frame.shape[1] - 300, 30),
                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255) if self.total_violations > 0 else (0, 255, 0), 2)
-
+        
     # =====================================
-    # 유틸리티 함수들
+    # 유틸리티 함수
     # =====================================
         
     def log_message(self, message, level="INFO"):
@@ -1160,7 +1134,7 @@ class SimpleExamSupervisor:
             self.root.destroy()
 
 # =====================================
-# TTS 함수 (원본과 동일)
+# TTS 함수
 # =====================================
 
 def tts_worker_thread():
