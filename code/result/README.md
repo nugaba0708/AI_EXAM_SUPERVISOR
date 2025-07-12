@@ -1,1 +1,2 @@
-* 250709_final.py: 최종 소스
+* source.py: 소스파일
+* config.json: parameter에 대한 파일
